@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Forex AI - Terminal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav class="navbar glass">
+        <div class="container nav-content">
+            <div class="brand">OROYA AI</div>
+            <a href="index.html" class="btn btn-ghost" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">
+                &larr; Exit Terminal
+            </a>
+        </div>
+    </nav>
+
+    <div class="container upload-container">
+
+        <div class="center-text mb-4">
+            <h1>Market Analysis</h1>
+            <p>Upload M5 Chart for Institutional Bias</p>
+        </div>
+
+        <div class="card">
+            <form id="analysis-form" onsubmit="return false;">
+
+                <!-- File Input -->
+                <div class="upload-zone" id="drop-zone">
+                    <div class="upload-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                    </div>
+                    <div style="font-weight: 500; color: var(--text-primary);">Click or Drag Chart Image</div>
+                    <div style="font-size: 0.85rem; color: var(--text-tertiary); margin-top: 0.5rem;">Supports JPG, PNG
+                        (Max 5MB)</div>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                </div>
+
+                <div id="preview-container" class="preview-area">
+                    <img id="preview-img" src="">
+                    <div style="padding: 1rem; text-align: center; background: var(--bg-surface);">
+                        <button type="button" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.5rem 1rem;"
+                            onclick="resetUpload()">Remove Image</button>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    <!-- Fixed Information -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="label">Asset Class</label>
+                        <div class="input"
+                            style="opacity: 0.7; cursor: not-allowed; display: flex; align-items: center; justify-content: space-between;">
+                            <span>Gold (XAUUSD)</span>
+                            <span style="font-size: 0.8rem; color: var(--accent-primary);">FIXED</span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="label">Timeframe</label>
+                        <div class="input"
+                            style="opacity: 0.7; cursor: not-allowed; display: flex; align-items: center; justify-content: space-between;">
+                            <span>M5 (Scalping)</span>
+                            <span style="font-size: 0.8rem; color: var(--accent-primary);">FIXED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Selection -->
+                <div class="form-group">
+                    <label class="label">Trading Session</label>
+                    <div class="select-wrapper">
+                        <select id="session-select" class="select">
+                            <option value="New York">New York (EST)</option>
+                            <option value="London">London (UTC)</option>
+                            <option value="Tokyo">Tokyo (JST)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" id="submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"
+                    disabled>
+                    <div id="btn-loader" class="spinner"></div>
+                    <span id="btn-text">Execute Analysis</span>
+                </button>
+
+            </form>
+        </div>
+
+        <div id="result-area" class="terminal">
+            <div class="terminal-header">
+                <span>/// SYSTEM OUTPUT</span>
+                <span id="terminal-status" style="color: var(--success);">CONNECTED</span>
+            </div>
+            <div id="result-content" class="terminal-content"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultArea = document.getElementById('result-area');
+        const resultContent = document.getElementById('result-content');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+        const terminalStatus = document.getElementById('terminal-status');
+
+        // Drag & Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    previewImg.src = event.target.result;
+                    previewContainer.style.display = 'block';
+                    dropZone.style.display = 'none';
+                    submitBtn.disabled = false;
+                    btnText.textContent = "Run Analysis";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetUpload() {
+            fileInput.value = '';
+            previewContainer.style.display = 'none';
+            dropZone.style.display = 'block';
+            submitBtn.disabled = true;
+            resultArea.style.display = 'none';
+            btnText.textContent = "Execute Analysis";
+        }
+
+        // Analysis Logic
+        let isProcessing = false;
+
+        submitBtn.addEventListener('click', async () => {
+            if (isProcessing) return;
+
+            const file = fileInput.files[0] || (dropZone.files && dropZone.files[0]); // Check logic if needed but input holds ref usually
+            if (!fileInput.files[0]) return; // Simple check
+
+            isProcessing = true;
+
+            // UI Loading State
+            btnText.textContent = "Processing Order Flow...";
+            btnLoader.style.display = "inline-block";
+            submitBtn.disabled = true;
+            resultArea.style.display = 'none';
+            resultContent.innerHTML = '';
+
+            // Prepare Data
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('asset', "XAUUSD");
+            formData.append('timeframe', "M5");
+            formData.append('timezone', document.getElementById('session-select').value);
+            formData.append('exchange', document.getElementById('session-select').value);
+
+            try {
+                // Direct API Call
+                const response = await fetch('http://n8n-kkskgk8wss4scs8kkogcs4cg.91.99.182.76.sslip.io/webhook/4854c27c-9696-478b-b9ec-abbce0de50ca', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const text = await response.text();
+                    let output = text;
+                    try {
+                        const json = JSON.parse(text);
+                        output = json.output || json.message || json.result || JSON.stringify(json, null, 2);
+                    } catch (e) { }
+
+                    resultContent.innerHTML = output.replace(/\n/g, '<br>');
+
+                    resultArea.style.display = 'block';
+                    resultArea.scrollIntoView({ behavior: 'smooth' });
+                    terminalStatus.textContent = "SUCCESS";
+                    terminalStatus.style.color = "var(--success)";
+
+                    btnText.textContent = "Analysis Complete";
+                    btnLoader.style.display = "none";
+                    submitBtn.disabled = false;
+
+                    setTimeout(() => {
+                        btnText.textContent = "Run New Analysis";
+                        isProcessing = false;
+                    }, 2000);
+
+                } else {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+            } catch (err) {
+                console.error("Analysis Error:", err);
+
+                let errorMsg = `SYSTEM ERROR: ${err.message}`;
+                if (err.message.includes('Failed to fetch')) {
+                    errorMsg += `<br><br>POTENTIAL CAUSE: Mixed Content Block.<br>If you are viewing this via HTTPS, your browser blocked the connection to the HTTP backend.<br>Solution: Use HTTP or configure a proxy.`;
+                }
+
+                resultContent.innerHTML = `<span style="color: var(--error);">${errorMsg}</span>`;
+                resultArea.style.display = 'block';
+                terminalStatus.textContent = "CONNECTION FAILED";
+                terminalStatus.style.color = "var(--error)";
+
+                btnLoader.style.display = "none";
+                btnText.textContent = "Retry Analysis";
+                submitBtn.disabled = false;
+                isProcessing = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
